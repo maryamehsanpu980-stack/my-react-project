@@ -51,23 +51,6 @@ export default function Footer() {
           </ul>
         </div>
         <div>
-          <h3 className="footer-heading">Resources</h3>
-          <ul className="footer-links">
-            <li>
-              <a href="#">How reporting works</a>
-            </li>
-            <li>
-              <a href="#">Open data &amp; API</a>
-            </li>
-            <li>
-              <a href="#">For municipal partners</a>
-            </li>
-            <li>
-              <a href="#">Privacy &amp; data use</a>
-            </li>
-          </ul>
-        </div>
-        <div>
           <h3 className="footer-heading">Support</h3>
           <ul className="footer-links">
             <li>
