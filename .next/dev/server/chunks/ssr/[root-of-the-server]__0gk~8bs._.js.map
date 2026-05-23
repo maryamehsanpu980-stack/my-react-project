@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/momin/my-react-project/pages/index.jsx"],"sourcesContent":["import dynamic from \"next/dynamic\";\r\n\r\nconst App = dynamic(() => import(\"../src/App.jsx\"), { ssr: false });\r\n\r\nexport default App; "],"names":["App","ssr"],"mappings":";;;;AAAA;;;AAEA,MAAMA,MAAM,IAAA,mIAAO,EAAC;;;;;;IAAkCC,KAAK;;uCAE5CD"}}]
+}
