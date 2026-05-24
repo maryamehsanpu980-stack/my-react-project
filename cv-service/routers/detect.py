@@ -1,7 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
-from services.inference import run_inference
-from schemas.detection import DetectionResponse
-
+from services.inference import run_inference   # ← NEW
+from schemas.detection import DetectionResponse  # ← NEW
 router = APIRouter()
 
 MAX_SIZE = 5 * 1024 * 1024  # 5 MB
