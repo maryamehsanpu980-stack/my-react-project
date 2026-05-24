@@ -6,3 +6,17 @@ dist
 .env.*
 .env.local
 .next/
+# Python virtual environment
+venv/
+cv-service/venv/
+
+# Python cache
+__pycache__/
+*.pyc
+.pytest_cache/
+cv-service/.pytest_cache/
+
+# Node / Next / build files
+node_modules/
+.next/
+dist/

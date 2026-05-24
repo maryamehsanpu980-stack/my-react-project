@@ -1,11 +1,10 @@
 from ultralytics import YOLO
 import os
 
-MODEL_PATH = os.getenv("MODEL_PATH", "model/yolov8_rdd2022_best.pt")
+MODEL_PATH = os.getenv("MODEL_PATH", "yolov8n.pt")  # ← fixed default
 CONF_THRESHOLD = float(os.getenv("CONF_THRESHOLD", "0.50"))
 IOU_THRESHOLD  = float(os.getenv("IOU_THRESHOLD",  "0.50"))
 
-# Loaded once when the module is imported
 model = YOLO(MODEL_PATH)
 
 def severity_from_confidence(conf: float) -> str:
@@ -16,7 +15,6 @@ def severity_from_confidence(conf: float) -> str:
 
 def run_inference(image_bytes: bytes) -> dict:
     import tempfile, os
-    # Write bytes to a temp file (YOLO expects a path or np array)
     with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
         f.write(image_bytes)
         tmp_path = f.name
@@ -35,7 +33,6 @@ def run_inference(image_bytes: bytes) -> dict:
     if boxes is None or len(boxes) == 0:
         return {"detected": False, "confidence": 0.0, "severity": "none", "detections": []}
 
-    # Take highest-confidence detection
     best_conf = float(boxes.conf.max())
     raw_boxes = [
         {
