@@ -212,7 +212,7 @@ export default async function handler(req, res) {
   try {
     cvResult = await detectPothole(imageBuffer, path.basename(imageFile.filepath));
   } catch (err) {
-    console.error('[upload] CV service error:', err.message);
+    console.error('=== CV ERROR ===', err.message, err.cause);
     // Admin removed — no manual review queue. Reject immediately.
     if (contributorEmail) {
       sendRejectionEmail({
@@ -227,7 +227,10 @@ export default async function handler(req, res) {
     });
   }
 
+  console.log("1")
+
   if (!cvResult.detected) {
+    console.log("2")
     if (contributorEmail) {
       sendRejectionEmail({
         to:     contributorEmail,
@@ -243,8 +246,11 @@ export default async function handler(req, res) {
 
   // ── Stage 8: Duplicate check ──────────────────────────────────────────────────
   // Calls Supabase RPC find_nearby_detection — 20m radius, approved detections only.
+  console.log("3")
   const duplicate = await findDuplicateDetection(coords.lat, coords.lng);
+  console.log("4")
   if (duplicate) {
+    console.log("5")
     if (contributorEmail) {
       sendDuplicateEmail({
         to:           contributorEmail,
@@ -259,16 +265,20 @@ export default async function handler(req, res) {
       message:    'A report already exists nearby. Your submission has been noted — thank you!',
     });
   }
+    console.log("6")
 
   // ── Stage 9: Upload image to Supabase Storage ─────────────────────────────────
   // Bucket: 'pothole-images' (confirmed created + public in Dev Session 2)
   // Non-fatal: if storage fails, imageUrl = null and we still save the detection.
+  console.log("7")
   const supabase    = makeServiceClient();
   const storagePath = `uploads/${Date.now()}_${path.basename(imageFile.filepath)}.jpg`;
 
   const { data: storageData, error: storageErr } = await supabase.storage
     .from('pothole-images')
     .upload(storagePath, imageBuffer, { contentType: mime, upsert: false });
+
+  console.log("8")
 
   if (storageErr) {
     console.warn('[upload] Storage upload failed (non-fatal):', storageErr.message);
@@ -300,6 +310,8 @@ export default async function handler(req, res) {
     .select()
     .single();
 
+    console.log("10")
+
   if (dbErr) {
     console.error('[upload] DB insert error:', dbErr.message);
     return res.status(500).json({
@@ -307,7 +319,7 @@ export default async function handler(req, res) {
       message: 'Could not save your report. Please try again.',
     });
   }
-
+  console.log("11")
   // ── Stage 11: Acceptance email ────────────────────────────────────────────────
   if (contributorEmail) {
     sendAcceptanceEmail({
