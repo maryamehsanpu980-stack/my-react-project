@@ -53,24 +53,7 @@ export const STATS = [
     bar: 65,
     icon: "camera",
   },
-  {
-    key: "resolved",
-    label: "Areas Resolved",
-    value: "34",
-    trend: "+4 areas",
-    trendUp: true,
-    bar: 42,
-    icon: "check",
-  },
-  {
-    key: "risk",
-    label: "High Risk Roads",
-    value: "18",
-    trend: "−2 vs last week",
-    trendUp: false,
-    bar: 55,
-    icon: "alert",
-  },
+
   {
     key: "pending",
     label: "Pending Reports",
@@ -125,10 +108,16 @@ export const TOP_AREAS = [
 ];
 
 export const CONTRIBUTORS = [
-  { name: "Ayesha Khan", area: "Model Town", reports: 48, rank: "Top Contributor" },
-  { name: "Hassan Malik", area: "Iqbal Town", reports: 31, rank: "Active Contributor" },
-  { name: "Sara Ahmed", area: "Garden Town", reports: 22, rank: "Active Contributor" },
-  { name: "Bilal Raza", area: "Wapda Town", reports: 6, rank: "New Reporter" },
+  { name: "Ayesha Khan", area: "Model Town", reports: 48, },
+  { name: "Hassan Malik", area: "Iqbal Town", reports: 31, },
+  { name: "Sara Ahmed", area: "Garden Town", reports: 22, },
+  { name: "Bilal Raza", area: "Wapda Town", reports: 6, },
+  { name: "Saleem Ali", area: "JoharTown", reports: 6, },
+  { name: "Ali Nawaz", area: "Eithad Town", reports: 6, },
+  { name: "Haider Sheikh", area: "Valancia Town", reports: 6, },
+  { name: "Kiran Ali", area: "Sheraz Town", reports: 6, },
+  { name: "Hassan Bashir", area: "Garden Town", reports: 6, },
+  { name: "Talha Younas", area: "Iqbal Town", reports: 6, },
 ];
 
 export const AI_INSIGHTS = [

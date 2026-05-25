@@ -5,7 +5,7 @@ export default function HeroSection() {
   return (
     <section className="hero">
       <div className="hero-copy">
-        <p className="hero-badge">Lahore · Citizen &amp; AI road intelligence</p>
+        <p className="hero-badge">Lahore · Citizen &amp; Pothole Safety</p>
         <h1>Pothole Detection &amp; Road Safety Dashboard</h1>
         <p className="hero-sub">Monitor, report, and track road damage across Lahore.</p>
       </div>
