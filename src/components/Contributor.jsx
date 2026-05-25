@@ -1,5 +1,8 @@
+
+"use client";
+
 import React from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+
 
 const CONTRIBUTORS = [
   { name: "Ali Khan" },
@@ -15,112 +18,23 @@ function initials(name) {
     .map((word) => word[0])
     .join("");
 }
+const ITEMS_PER_PAGE = 5;
 
 
-
-export default function Contributor() {
-
-    const searchParams = useSearchParams();
-    const router = useRouter();
-  
-   
-     // Current Page
-    const currentPage =
-      Number(searchParams.get("page")) || 1;
-  
-    // Items per page
-    const itemsPerPage = 4;
-  
-    // Total pages
-    const totalPages = Math.ceil(
-      CONTRIBUTORS.length / itemsPerPage
-    );
-  
-    // Start index
-    const startIndex =
-      (currentPage - 1) * itemsPerPage;
-  
-    // Current page data
-    const currentContributors =
-      CONTRIBUTORS.slice(
-        startIndex,
-        startIndex + itemsPerPage
-      );
-  
-    // Change page function
-    const changePage = (page) => {
-      router.push(`/contributor?page=${page}`);
-    };
-
+export default function Contributor({ currentData }) {
+if (!currentData || !Array.isArray(currentData)) {
+    return <p style={{ color: "#666" }}>No contributor data available.</p>;
+  }
   return (
-    <div className="contributors-container">
-      <h2>Contributors</h2>
-
-      <ul className="contributor-list">
-        {CONTRIBUTORS.map((c) => (
-          <li key={c.name} className="contrib-row">
-            <div className="contrib-avatar">
-              {initials(c.name)}
-            </div>
-
-            <span>{c.name}</span>
+   <div style={{ marginTop: "20px" }}>
+      <h4>Active Contributors List</h4>
+      <ul style={{ listStyle: "none", padding: 0 }}>
+        {currentData.map((user) => (
+          <li key={user.id} style={{ padding: "10px", borderBottom: "1px solid #eee" }}>
+            <strong>{user.name}</strong> — <span style={{ color: "#666" }}>{user.email}</span>
           </li>
         ))}
       </ul>
-     {/* Pagination Buttons */}
-      <div
-        style={{
-          display: "flex",
-          gap: "10px",
-          marginTop: "20px",
-        }}
-      >
-        {/* Previous */}
-        <button
-          disabled={currentPage === 1}
-          onClick={() =>
-            changePage(currentPage - 1)
-          }
-        >
-          Previous
-        </button>
-
-        {/* Page Numbers */}
-        {[...Array(totalPages)].map((_, index) => (
-          <button
-            key={index}
-            onClick={() =>
-              changePage(index + 1)
-            }
-            style={{
-              background:
-                currentPage === index + 1
-                  ? "blue"
-                  : "white",
-              color:
-                currentPage === index + 1
-                  ? "white"
-                  : "black",
-              padding: "8px 12px",
-              border: "1px solid gray",
-            }}
-          >
-            {index + 1}
-          </button>
-        ))}
-
-        {/* Next */}
-        <button
-          disabled={
-            currentPage === totalPages
-          }
-          onClick={() =>
-            changePage(currentPage + 1)
-          }
-        >
-          Next
-        </button>
       </div>
-    </div>
   );
 }

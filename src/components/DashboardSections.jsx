@@ -1,3 +1,4 @@
+"use client";
 import {
   RECENT_REPORTS,
   TOP_AREAS,
@@ -7,8 +8,12 @@ import {
 } from "../data/siteData.js";
 import React, { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import Contributor from "./Contributor.jsx";
-import Link from "next/link";
+import Link from "next/link"; 
+import Contributor from "./Contributor"; //
+
+
+
+ 
 
 function rankClass(rank) {
   if (rank === "Top Contributor") return "contrib-badge rank-top";
@@ -24,10 +29,42 @@ function initials(name) {
     .slice(0, 2);
 }
 
+// 1. ADD THIS ARY DECLARATION RIGHT HERE (Outside the function)
+const mockContributors = Array.from({ length: 23 }, (_, i) => ({
+  id: i + 1,
+  name: `Contributor ${i + 1}`,
+  email: `user${i + 1}@email.com`
   
-export default function DashboardSections() {
- 
+}));
 
+const ITEMS_PER_PAGE = 5;
+
+ 
+export default function DashboardSections() {
+ // 1. Local state to track pagination context
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // 2. Pagination Math calculations
+  const totalPages = Math.ceil(mockContributors.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  
+  // Slice out the exact 5 items for our current page view
+  const currentData = mockContributors.slice(startIndex, endIndex);
+
+  // 3. Action Handlers for the buttons
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => prev - 1);
+    }
+  };
+ 
 
   return (
     <div className="lower-grid">
@@ -53,20 +90,52 @@ export default function DashboardSections() {
         </ul>
         
       </section>
-<Link href="/contributor">
+      <div style={{ padding: "20px", maxWidth: "500px", border: "1px solid #ddd", borderRadius: "8px" }}>
+      <h2>Dashboard Sections</h2>
+      <p>Manage your platform sections and system variables here.</p>
+
+      <hr style={{ margin: "20px 0", borderColor: "#eee" }} />
+
+      {/* Renders the child component, sending only the current slice of items */}
+      <Contributor currentData={currentData} />
+
+      {/* Pagination Controls Row */}
+      <div style={{ marginTop: "20px", display: "flex", gap: "10px", alignItems: "center" }}>
         <button
+          onClick={handlePrev}
+          disabled={currentPage === 1}
           style={{
-            padding: "12px 20px",
-            background: "blue",
-            color: "white",
+            padding: "6px 12px",
+            cursor: currentPage === 1 ? "not-allowed" : "pointer",
+            background: currentPage === 1 ? "#ccc" : "var(--teal, #008080)",
+            color: "#fff",
             border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
+            borderRadius: "4px"
           }}
         >
-          Open Contributors
+          Previous
         </button>
-      </Link>
+
+        <span style={{ fontWeight: "600" }}>
+          Page {currentPage} of {totalPages}
+        </span>
+
+        <button
+          onClick={handleNext}
+          disabled={currentPage === totalPages}
+          style={{
+            padding: "6px 12px",
+            cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+            background: currentPage === totalPages ? "#ccc" : "var(--teal, #008080)",
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px"
+          }}
+        >
+          Next
+        </button>
+      </div>
+    </div>
       <section className="card-elevated message-card" id="about" aria-labelledby="msgHeading">
         <h2 id="msgHeading" className="section-title">
           Our Message
