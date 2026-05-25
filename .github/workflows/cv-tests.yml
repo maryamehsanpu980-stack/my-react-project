@@ -1,0 +1,37 @@
+name: CV Automation Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  cv-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install CV dependencies
+        working-directory: cv-service
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Start CV server
+        working-directory: cv-service
+        run: |
+          python -m uvicorn main:app --host 127.0.0.1 --port 8000 &
+          sleep 15
+
+      - name: Run CV automation tests
+        working-directory: cv-service
+        run: |
+          pytest tests/cv -s
