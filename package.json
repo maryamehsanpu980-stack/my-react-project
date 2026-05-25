@@ -4,10 +4,11 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
-  },
+  "dev": "next dev",
+  "build": "next build",
+  "start": "next start",
+  "test:db:supabase": "node --test tests/db/supabase-database.test.cjs"
+},
   "dependencies": {
     "@supabase/supabase-js": "^2.106.1",
     "leaflet": "^1.9.4",
