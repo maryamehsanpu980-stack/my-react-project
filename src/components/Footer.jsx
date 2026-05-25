@@ -31,7 +31,7 @@ export default function Footer() {
           <h3 className="footer-heading">Support</h3>
           <ul className="footer-links">
             <li>
-              <a href="mailto:hello@roadvision.pk">hello@roadvision.pk</a>
+              <a href="mailto:hello@roadvision.pk">helloo@roadvision.pk</a>
             </li>
           </ul>
         </div>
