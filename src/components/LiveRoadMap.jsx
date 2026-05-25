@@ -1,29 +1,27 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
-import { MAP_POINTS } from "../data/siteData.js";
+import { useReports } from "../hooks/useReports.js"; // ← changed
 
 const OSM = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 const ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
 
-function filterPoints(query) {
+// ← changed: now takes reports as param instead of using MAP_POINTS
+function filterPoints(query, reports = []) {
   const q = (query || "").trim().toLowerCase();
   const reportIdSearch =
     q.startsWith("rv-") || q.startsWith("#") || /^rpt-?\d/i.test(q) || q === "report";
-  if (!q || reportIdSearch) return MAP_POINTS;
-  return MAP_POINTS.filter((p) => {
-    const a = p.area.toLowerCase();
-    return a.includes(q) || a.split(/\s+/).some((part) => part.startsWith(q) && q.length >= 2);
-  });
+  if (!q || reportIdSearch) return reports;
+  return reports.filter((p) =>
+    (p.location_text || "").toLowerCase().includes(q)
+  );
 }
 
 function MapBridge({ mapRef }) {
   const map = useMap();
   useEffect(() => {
     mapRef.current = map;
-    return () => {
-      mapRef.current = null;
-    };
+    return () => { mapRef.current = null; };
   }, [map, mapRef]);
   return null;
 }
@@ -37,16 +35,16 @@ function MapResize() {
   return null;
 }
 
-function FlyToSearch({ searchQuery }) {
+function FlyToSearch({ searchQuery, reports }) { // ← changed: takes reports
   const map = useMap();
   useEffect(() => {
     const q = (searchQuery || "").trim().toLowerCase();
     const reportIdSearch =
       q.startsWith("rv-") || q.startsWith("#") || /^rpt-?\d/i.test(q) || q === "report";
     if (!q || reportIdSearch) return;
-    const first = MAP_POINTS.find((p) => p.area.toLowerCase().includes(q));
+    const first = reports.find((p) => (p.location_text || "").toLowerCase().includes(q));
     if (first) map.setView([first.lat, first.lng], 14);
-  }, [searchQuery, map]);
+  }, [searchQuery, map, reports]);
   return null;
 }
 
@@ -55,17 +53,11 @@ function LocateListener() {
   useEffect(() => {
     const onFound = (e) => {
       L.circleMarker(e.latlng, {
-        radius: 8,
-        color: "#0d9488",
-        fillColor: "#0d9488",
-        fillOpacity: 0.25,
-      })
-        .addTo(map)
-        .bindPopup("You are here (approx.)")
-        .openPopup();
+        radius: 8, color: "#0d9488", fillColor: "#0d9488", fillOpacity: 0.25,
+      }).addTo(map).bindPopup("You are here (approx.)").openPopup();
     };
     const onErr = () => {
-      window.alert("Location permission denied or unavailable. Try zooming manually on Lahore.");
+      console.warn("Location permission denied or unavailable.");
     };
     map.on("locationfound", onFound);
     map.on("locationerror", onErr);
@@ -82,18 +74,18 @@ export default function LiveRoadMap({ searchQuery }) {
   const sectionRef = useRef(null);
   const [satellite, setSatellite] = useState(false);
 
-  const points = useMemo(() => filterPoints(searchQuery), [searchQuery]);
+  const { reports } = useReports(); // ← changed
 
   const icon = useMemo(
-    () =>
-      L.divIcon({
-        className: "",
-        html: '<div class="marker-dot"></div>',
-        iconSize: [14, 14],
-        iconAnchor: [7, 7],
-      }),
-    []
+    () => L.divIcon({
+      className: "",
+      html: '<div class="marker-dot"></div>',
+      iconSize: [14, 14],
+      iconAnchor: [7, 7],
+    }), []
   );
+
+  const points = useMemo(() => filterPoints(searchQuery, reports), [searchQuery, reports]); // ← changed
 
   const zoomIn = () => mapRef.current?.zoomIn();
   const zoomOut = () => mapRef.current?.zoomOut();
@@ -110,24 +102,14 @@ export default function LiveRoadMap({ searchQuery }) {
     <section className="map-section card-elevated" id="map-section" ref={sectionRef} aria-labelledby="mapHeading">
       <div className="map-section-head">
         <div>
-          <h2 id="mapHeading" className="section-title">
-            Live Road Damage Map
-          </h2>
+          <h2 id="mapHeading" className="section-title">Live Road Damage Map</h2>
           <p className="section-sub">Pothole markers across major Lahore corridors — zoom and explore.</p>
         </div>
         <div className="map-toolbar" role="toolbar" aria-label="Map controls">
-          <button type="button" className="tool-btn" onClick={zoomIn} title="Zoom in">
-            +
-          </button>
-          <button type="button" className="tool-btn" onClick={zoomOut} title="Zoom out">
-            −
-          </button>
-          <button type="button" className="tool-btn" onClick={toggleLayer} title="Switch map layer">
-            Layers
-          </button>
-          <button type="button" className="tool-btn" onClick={fullscreen} title="Fullscreen">
-            ⛶
-          </button>
+          <button type="button" className="tool-btn" onClick={zoomIn} title="Zoom in">+</button>
+          <button type="button" className="tool-btn" onClick={zoomOut} title="Zoom out">−</button>
+          <button type="button" className="tool-btn" onClick={toggleLayer} title="Switch map layer">Layers</button>
+          <button type="button" className="tool-btn" onClick={fullscreen} title="Fullscreen">⛶</button>
           <button type="button" className="tool-btn tool-btn-accent" onClick={locate} title="Current location">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
@@ -145,19 +127,20 @@ export default function LiveRoadMap({ searchQuery }) {
       >
         <MapBridge mapRef={mapRef} />
         <MapResize />
-        <FlyToSearch searchQuery={searchQuery} />
+        <FlyToSearch searchQuery={searchQuery} reports={reports} />
         <LocateListener />
         {satellite ? (
           <TileLayer attribution="Tiles &copy; Esri" url={ESRI} maxZoom={19} />
         ) : (
           <TileLayer attribution="&copy; OpenStreetMap" url={OSM} maxZoom={19} />
         )}
+        {/* ← changed: key, position, popup use live DB fields */}
         {points.map((p) => (
-          <Marker key={`${p.area}-${p.lat}-${p.lng}`} position={[p.lat, p.lng]} icon={icon}>
+          <Marker key={p.id} position={[p.lat, p.lng]} icon={icon}>
             <Popup className="pothole-popup">
-              <strong>{p.area}</strong>
+              <strong>{p.location_text || "Unknown area"}</strong>
               <br />
-              Citizen &amp; AI corroborated damage point.
+              Severity: {p.severity} · {(p.confidence * 100).toFixed(0)}% confidence
             </Popup>
           </Marker>
         ))}

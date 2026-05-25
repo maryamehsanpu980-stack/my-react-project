@@ -1,4 +1,4 @@
-import { getServiceClient } from '../../src/lib/supabase';
+import { getServiceClient } from '../../../src/lib/supabase';
 
 export default async function handler(req, res) {
   const supabase = getServiceClient();
@@ -22,6 +22,19 @@ export default async function handler(req, res) {
 
     if (error) return res.status(500).json({ error: error.message });
     return res.status(200).json(data);
+  }
+
+  if (req.method === 'GET' && req.query.area) {
+  const area = req.query.area.trim();
+  const { data, error } = await supabase
+    .from('detections')
+    .select('id, lat, lng, location_text, severity, confidence, source, contributor_name, created_at')
+    .eq('status', 'approved')
+    .ilike('location_text', `%${area}%`)
+    .order('created_at', { ascending: false });
+
+  if (error) return res.status(500).json({ error: error.message });
+  return res.status(200).json(data);
   }
 
   // GET all approved detections for map
