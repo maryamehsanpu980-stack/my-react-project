@@ -23,6 +23,5 @@ export async function findDuplicateDetection(lat, lng) {
     console.error('[duplicateCheck] RPC error:', error.message);
     return null;
   }
-
   return data?.[0] ?? null;
 }
