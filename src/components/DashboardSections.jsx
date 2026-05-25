@@ -33,7 +33,7 @@ function initials(name) {
 const mockContributors = Array.from({ length: 23 }, (_, i) => ({
   id: i + 1,
   name: `Contributor ${i + 1}`,
-  email: `user${i + 1}@email.com`
+  email:`${i + 1}@email.com`
   
 }));
 
