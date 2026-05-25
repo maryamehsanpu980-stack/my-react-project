@@ -7,7 +7,7 @@ export default function HeroSection() {
       <div className="hero-copy">
         <p className="hero-badge">Lahore · Citizen &amp; Pothole Safety</p>
         <h1>Pothole Detection &amp; Road Safety Dashboard</h1>
-        <p className="hero-sub">Monitor, report, and track road damage across Lahore.</p>
+        <p className="hero-sub">Monitor, report, and track road safety across Lahore.</p>
       </div>
       <div className="stats-grid">
         {STATS.map((s) => (
