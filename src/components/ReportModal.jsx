@@ -76,10 +76,17 @@ export default function ReportModal({ open, onClose }) {
   const [location, setLocation] = useState("");
   const [dragOver, setDragOver] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [pinLat, setPinLat] = useState(31.52);
+  const [pinLng, setPinLng] = useState(74.35);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
+  const [submitSuccess, setSubmitSuccess] = useState(null);
   const fileInputRef = useRef(null);
 
   const handlePinChange = useCallback((lat, lng) => {
     setLocation((prev) => mergePinIntoLocation(prev, lat, lng));
+    setPinLat(lat);
+    setPinLng(lng);
   }, []);
 
   useEffect(() => {
@@ -100,6 +107,11 @@ export default function ReportModal({ open, onClose }) {
       setName("");
       setEmail("");
       setLocation("");
+      setPinLat(31.52);
+      setPinLng(74.35);
+      setSubmitError(null);
+      setSubmitSuccess(null);
+      setSubmitting(false);
       setPreviewUrl((url) => {
         if (url) URL.revokeObjectURL(url);
         return null;
@@ -117,10 +129,49 @@ export default function ReportModal({ open, onClose }) {
     });
   };
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    onClose();
-    window.alert("Thank you — your report was submitted (demo).");
+    setSubmitError(null);
+    setSubmitSuccess(null);
+
+    const file = fileInputRef.current?.files?.[0];
+    if (!file) {
+      setSubmitError("Please upload an image.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("image", file);
+    formData.append("lat", pinLat);
+    formData.append("lng", pinLng);
+    formData.append("name", name);
+    formData.append("email", email);
+    formData.append("location", location);
+
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      const data = await res.json();
+
+      if (res.ok) {
+        if (data.status === "approved") {
+          setSubmitSuccess("Your report is live on the map!");
+          setTimeout(() => onClose(), 2000);
+        } else if (data.status === "duplicate") {
+          setSubmitSuccess("A report already exists nearby — thanks for confirming!");
+          setTimeout(() => onClose(), 2500);
+        } else {
+          setSubmitSuccess(data.message || "Submitted successfully.");
+          setTimeout(() => onClose(), 2000);
+        }
+      } else {
+        setSubmitError(data.message || "Submission failed. Please try again.");
+      }
+    } catch {
+      setSubmitError("Network error. Please check your connection and try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const onBackdropClick = (e) => {
@@ -242,7 +293,7 @@ export default function ReportModal({ open, onClose }) {
                     <p>
                       <strong>Click to upload</strong> or drag and drop
                     </p>
-                    <p className="dropzone-meta">PNG, JPG up to 10MB</p>
+                    <p className="dropzone-meta">PNG, JPG up to 5MB</p>
                   </div>
                 ) : (
                   <div className="dropzone-preview">
@@ -252,12 +303,24 @@ export default function ReportModal({ open, onClose }) {
               </div>
             </div>
           </div>
+
+          {submitError && (
+            <p style={{ color: "#dc2626", margin: "8px 0 0", fontSize: "0.88rem" }}>
+              ⚠ {submitError}
+            </p>
+          )}
+          {submitSuccess && (
+            <p style={{ color: "#0d9488", margin: "8px 0 0", fontSize: "0.88rem" }}>
+              ✓ {submitSuccess}
+            </p>
+          )}
+
           <div className="modal-actions">
-            <button type="button" className="btn-secondary" onClick={onClose}>
+            <button type="button" className="btn-secondary" onClick={onClose} disabled={submitting}>
               Cancel
             </button>
-            <button type="submit" className="btn-primary">
-              Submit Report
+            <button type="submit" className="btn-primary" disabled={submitting}>
+              {submitting ? "Submitting..." : "Submit Report"}
             </button>
           </div>
         </form>
