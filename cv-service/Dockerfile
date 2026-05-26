@@ -15,4 +15,4 @@ COPY . .
 # Download model from Google Drive on startup
 RUN mkdir -p /app/model
 
-CMD ["sh", "-c", "gdown https://drive.google.com/file/d/1axZZyPOFDmIs9Eq0HtYRMpR3Q3vRJMt7/view?usp=drive_link -O /app/model/yolov8_rdd2022_v3_best.pt && uvicorn main:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", "gdown https://drive.google.com/file/d/1axZZyPOFDmIs9Eq0HtYRMpR3Q3vRJMt7/view?usp=sharing -O /app/model/yolov8_rdd2022_v3_best.pt && uvicorn main:app --host 0.0.0.0 --port 8000"]
