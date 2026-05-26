@@ -5,10 +5,6 @@ const LAHORE_BOUNDS = {
   lngMin: 74.15, lngMax: 74.55,
 };
 
-/**
- * Fast bounding-box check — no API call needed.
- * Use this as Stage 1 before the slower Nominatim call.
- */
 export function isWithinLahoreBounds(lat, lng) {
   return (
     lat >= LAHORE_BOUNDS.latMin && lat <= LAHORE_BOUNDS.latMax &&
@@ -16,10 +12,6 @@ export function isWithinLahoreBounds(lat, lng) {
   );
 }
 
-/**
- * Stage 2 — reverse geocode via Nominatim to confirm the city name.
- * Returns { valid: true, area } on success or { valid: false, area: null }.
- */
 export async function reverseGeocodeCheck(lat, lng) {
   try {
     const url =
@@ -30,25 +22,26 @@ export async function reverseGeocodeCheck(lat, lng) {
       headers: { 'User-Agent': 'RoadVisionPK/1.0 (hello@roadvision.pk)' },
     });
 
-    if (!res.ok) return { valid: false, area: null };
+    if (!res.ok) return { valid: null, area: null };
 
     const data = await res.json();
     const addr = data?.address || {};
+console.log('[geocode]', JSON.stringify(addr));
 
-    // Accept if city, town, or state_district mentions Lahore
-    const cityField = (addr.city || addr.town || addr.state_district || '').toLowerCase();
-    const valid = cityField.includes('lahore');
+    const countryCode = (addr.country_code || '').toLowerCase();
+    const isoCode = (addr['ISO3166-2-lvl4'] || '').toLowerCase();
 
-    const area =
-      addr.suburb ||
-      addr.neighbourhood ||
-      addr.road ||
-      addr.city ||
-      'Lahore';
+    // Not Pakistan → reject
+    if (countryCode && countryCode !== 'pk') return { valid: false, area: null };
 
-    return { valid, area };
+    // Not Punjab → reject
+    if (isoCode && !isoCode.includes('pk-pb')) return { valid: false, area: null };
+
+    // Pakistan + Punjab + bounding box passed → approve
+    const area = addr.suburb || addr.neighbourhood || addr.road || 'Lahore';
+    return { valid: true, area };
+
   } catch {
-    // Nominatim failure — treat as ambiguous, not rejected
     return { valid: null, area: null };
   }
 }

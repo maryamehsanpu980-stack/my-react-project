@@ -1,4 +1,4 @@
-name: Database Automation Tests
+name: API Automation Tests
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  db-tests:
+  api-tests:
     runs-on: ubuntu-latest
 
     env:
@@ -28,5 +28,14 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run Supabase database automation tests
-        run: npm run test:db:supabase
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Start frontend/API server
+        run: npm run dev &
+
+      - name: Wait for API server
+        run: npx wait-on http://localhost:3000
+
+      - name: Run API automation tests
+        run: npm run test:api

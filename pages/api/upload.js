@@ -212,7 +212,7 @@ export default async function handler(req, res) {
   try {
     cvResult = await detectPothole(imageBuffer, path.basename(imageFile.filepath));
   } catch (err) {
-    console.error('[upload] CV service error:', err.message);
+    console.error('=== CV ERROR ===', err.message, err.cause);
     // Admin removed — no manual review queue. Reject immediately.
     if (contributorEmail) {
       sendRejectionEmail({
@@ -227,7 +227,10 @@ export default async function handler(req, res) {
     });
   }
 
+  console.log("1")
+
   if (!cvResult.detected) {
+    console.log("2")
     if (contributorEmail) {
       sendRejectionEmail({
         to:     contributorEmail,
@@ -243,8 +246,11 @@ export default async function handler(req, res) {
 
   // ── Stage 8: Duplicate check ──────────────────────────────────────────────────
   // Calls Supabase RPC find_nearby_detection — 20m radius, approved detections only.
+  console.log("3")
   const duplicate = await findDuplicateDetection(coords.lat, coords.lng);
+  console.log("4")
   if (duplicate) {
+    console.log("5")
     if (contributorEmail) {
       sendDuplicateEmail({
         to:           contributorEmail,
@@ -259,16 +265,20 @@ export default async function handler(req, res) {
       message:    'A report already exists nearby. Your submission has been noted — thank you!',
     });
   }
+    console.log("6")
 
   // ── Stage 9: Upload image to Supabase Storage ─────────────────────────────────
   // Bucket: 'pothole-images' (confirmed created + public in Dev Session 2)
   // Non-fatal: if storage fails, imageUrl = null and we still save the detection.
+  console.log("7")
   const supabase    = makeServiceClient();
   const storagePath = `uploads/${Date.now()}_${path.basename(imageFile.filepath)}.jpg`;
 
   const { data: storageData, error: storageErr } = await supabase.storage
     .from('pothole-images')
     .upload(storagePath, imageBuffer, { contentType: mime, upsert: false });
+
+  console.log("8")
 
   if (storageErr) {
     console.warn('[upload] Storage upload failed (non-fatal):', storageErr.message);
@@ -300,6 +310,8 @@ export default async function handler(req, res) {
     .select()
     .single();
 
+    console.log("10")
+
   if (dbErr) {
     console.error('[upload] DB insert error:', dbErr.message);
     return res.status(500).json({
@@ -307,7 +319,7 @@ export default async function handler(req, res) {
       message: 'Could not save your report. Please try again.',
     });
   }
-
+  console.log("11")
   // ── Stage 11: Acceptance email ────────────────────────────────────────────────
   if (contributorEmail) {
     sendAcceptanceEmail({
@@ -329,93 +341,4 @@ export default async function handler(req, res) {
     imageUrl,
     message:    'Your report has been verified and added to the live map!',
   });
-}
-
-// ─── Standalone integration test ──────────────────────────────────────────────
-// Tests each module in pipeline order without starting a Next.js server.
-// Run:  node pages/api/upload.js
-if (process.argv[1] && process.argv[1].endsWith('upload.js')) {
-  const { createRequire } = await import('module');
-  const require = createRequire(import.meta.url);
-  try {
-    const dotenv = require('dotenv');
-    dotenv.config({ path: '.env.local' });
-    dotenv.config({ path: '.env' });
-  } catch { /* dotenv optional */ }
-
-  console.log('\n══════════════════════════════════════════════════════════════');
-  console.log('  RoadVision PK — Upload Pipeline Integration Test');
-  console.log('══════════════════════════════════════════════════════════════\n');
-
-  let pass = 0, fail = 0;
-  const check = (label, got, expected) => {
-    const ok = got === expected;
-    console.log(`  ${ok ? '✓' : '✗'} ${label}  →  ${got}  (expected: ${expected})`);
-    if (ok) pass++; else fail++;
-  };
-
-  // Stage 2 — GPS validation
-  console.log('── Stage 2: GPS validation ───────────────────────────────────');
-  check('Valid coords parse correctly', !isNaN(31.5167) && !isNaN(74.3486), true);
-  check('NaN coords fail',              !isNaN(NaN) && !isNaN(NaN),         false);
-
-  // Stage 4 — Bounding box
-  console.log('\n── Stage 4: Lahore bounding box ──────────────────────────────');
-  const { isWithinLahoreBounds: bb } = await import('../../src/lib/geocode.js');
-  check('Gulberg inside bounds',   bb(31.5167, 74.3486), true);
-  check('Karachi outside bounds',  bb(24.86,   67.01),   false);
-  check('Islamabad outside bounds',bb(33.72,   73.06),   false);
-  check('NaN coords rejected',     bb(NaN, NaN),          false);
-
-  // Stage 5 — Nominatim
-  console.log('\n── Stage 5: Nominatim reverse-geocode ────────────────────────');
-  const { reverseGeocodeCheck: geo } = await import('../../src/lib/geocode.js');
-  process.stdout.write('  Querying Gulberg (31.5167, 74.3486) … ');
-  const geoR = await geo(31.5167, 74.3486);
-  const geoOk = geoR.valid === true || geoR.valid === null;
-  console.log(`${geoOk ? '✓' : '✗'}  valid=${geoR.valid}  area="${geoR.area}"`);
-  if (geoOk) pass++; else fail++;
-
-  // Stage 6 — AI check
-  console.log('\n── Stage 6: AI image check ───────────────────────────────────');
-  const { checkAIGenerated: ai } = await import('../../src/lib/aiImageCheck.js');
-  const aiR = await ai(Buffer.from('not-an-image'));
-  check('Bad buffer returns isAI=null (fail-open)', aiR.isAI, null);
-
-  // Stage 7 — CV service token
-  console.log('\n── Stage 7: CV service token ─────────────────────────────────');
-  const secret = process.env.CV_SERVICE_SECRET;
-  if (!secret) {
-    console.log('  ✗ CV_SERVICE_SECRET not set — 401 errors will occur');
-    fail++;
-  } else {
-    console.log(`  ✓ CV_SERVICE_SECRET set (${secret.length} chars)`);
-    pass++;
-  }
-  const { cvServiceIsHealthy: cvH } = await import('../../src/lib/cvClient.js');
-  process.stdout.write('  Health check with x-cv-secret header … ');
-  const healthy = await cvH();
-  console.log(healthy
-    ? '  ✓ Service up, token accepted'
-    : '  ⚠  Unreachable or 401 — check Railway logs and CV_SERVICE_SECRET');
-
-  // Stage 8 — Duplicate check
-  console.log('\n── Stage 8: Duplicate check ──────────────────────────────────');
-  if (process.env.SUPABASE_SERVICE_KEY && process.env.NEXT_PUBLIC_SUPABASE_URL) {
-    const { findDuplicateDetection: dup } = await import('../../src/lib/duplicateCheck.js');
-    // Gulberg seed row is at 31.5167, 74.3486 — should find it
-    const dupR = await dup(31.5167, 74.3486);
-    console.log(`  Duplicate at Gulberg seed: ${dupR ? '✓ found — ' + dupR.id : 'none (seed may not exist)'}`);
-    // Far coords — should NOT find anything
-    const noR  = await dup(31.60, 74.50);
-    check('Far coords return null', noR, null);
-  } else {
-    console.log('  ⚠  Supabase env vars not set — skipping');
-  }
-
-  // Summary
-  console.log('\n══════════════════════════════════════════════════════════════');
-  console.log(`  Results: ${pass} passed  ${fail} failed`);
-  console.log('══════════════════════════════════════════════════════════════\n');
-  if (fail > 0) process.exit(1);
 }

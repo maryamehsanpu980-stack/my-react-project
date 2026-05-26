@@ -31,8 +31,15 @@ function loadEnvFile() {
 
 loadEnvFile();
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const SUPABASE_URL = (process.env.SUPABASE_URL || "")
+  .trim()
+  .replace(/^SUPABASE_URL\s*=\s*/i, "")
+  .replace(/\/rest\/v1\/?$/i, "")
+  .replace(/\/$/, "");
+
+const SUPABASE_ANON_KEY = (process.env.SUPABASE_ANON_KEY || "")
+  .trim()
+  .replace(/^SUPABASE_ANON_KEY\s*=\s*/i, "");
 
 async function fetchDetections(limit = 1) {
   const response = await fetch(
@@ -50,18 +57,24 @@ async function fetchDetections(limit = 1) {
 }
 
 test("Supabase environment variables should exist", () => {
-  assert.ok(SUPABASE_URL, "SUPABASE_URL is missing in .env.test");
-  assert.ok(SUPABASE_ANON_KEY, "SUPABASE_ANON_KEY is missing in .env.test");
+  assert.ok(SUPABASE_URL, "SUPABASE_URL is missing");
+  assert.ok(SUPABASE_ANON_KEY, "SUPABASE_ANON_KEY is missing");
+  assert.ok(
+    SUPABASE_URL.startsWith("https://"),
+    "SUPABASE_URL should start with https://"
+  );
 });
 
 test("detections table should be readable", async () => {
   const response = await fetchDetections(1);
 
-  assert.strictEqual(
-    response.status,
-    200,
-    `Expected status 200 but got ${response.status}`
-  );
+  if (response.status !== 200) {
+    const errorBody = await response.text();
+
+    assert.fail(
+      `Expected status 200 but got ${response.status}. Body: ${errorBody}`
+    );
+  }
 
   const data = await response.json();
 
@@ -126,18 +139,17 @@ test("should insert, fetch, and delete a test detection record", async () => {
   const testId = crypto.randomUUID();
 
   const testDetection = {
-  id: testId,
-  lat: 31.5204,
-  lng: 74.3587,
-  location_text: "Automation Test Location",
-  severity: "low",
-  confidence: 0.85,
-  source: "user_upload",
-  status: "approved",
-};
+    id: testId,
+    lat: 31.5204,
+    lng: 74.3587,
+    location_text: "Automation Test Location",
+    severity: "low",
+    confidence: 0.85,
+    source: "user_upload",
+    status: "approved",
+  };
 
   try {
-    // Insert test record
     const insertResponse = await fetch(`${SUPABASE_URL}/rest/v1/detections`, {
       method: "POST",
       headers: {
@@ -161,15 +173,11 @@ test("should insert, fetch, and delete a test detection record", async () => {
 
     assert.ok(Array.isArray(insertedData), "Inserted response should be array");
     assert.strictEqual(insertedData[0].id, testId);
-    assert.strictEqual(
-      insertedData[0].location_text,
-      "Automation Test Location"
-    );
+    assert.strictEqual(insertedData[0].location_text, "Automation Test Location");
     assert.strictEqual(insertedData[0].confidence, 0.85);
-   assert.strictEqual(insertedData[0].source, "user_upload");
+    assert.strictEqual(insertedData[0].source, "user_upload");
     assert.strictEqual(insertedData[0].status, "approved");
 
-    // Fetch inserted record
     const fetchResponse = await fetch(
       `${SUPABASE_URL}/rest/v1/detections?id=eq.${testId}&select=id,lat,lng,location_text,severity,confidence,source,status`,
       {
@@ -185,19 +193,13 @@ test("should insert, fetch, and delete a test detection record", async () => {
 
     const fetchedData = await fetchResponse.json();
 
-    assert.strictEqual(
-      fetchedData.length,
-      1,
-      "Inserted record should be fetched"
-    );
-
+    assert.strictEqual(fetchedData.length, 1, "Inserted record should be fetched");
     assert.strictEqual(fetchedData[0].id, testId);
     assert.strictEqual(fetchedData[0].severity, "low");
     assert.strictEqual(fetchedData[0].confidence, 0.85);
-   assert.strictEqual(fetchedData[0].source, "user_upload");
+    assert.strictEqual(fetchedData[0].source, "user_upload");
     assert.strictEqual(fetchedData[0].status, "approved");
   } finally {
-    // Delete test record after test
     const deleteResponse = await fetch(
       `${SUPABASE_URL}/rest/v1/detections?id=eq.${testId}`,
       {
@@ -216,7 +218,6 @@ test("should insert, fetch, and delete a test detection record", async () => {
     );
   }
 
-  // Verify deleted record does not exist
   const verifyDeleteResponse = await fetch(
     `${SUPABASE_URL}/rest/v1/detections?id=eq.${testId}&select=id`,
     {
