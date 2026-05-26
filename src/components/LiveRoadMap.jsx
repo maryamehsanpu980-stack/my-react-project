@@ -69,7 +69,7 @@ function LocateListener() {
   return null;
 }
 
-export default function LiveRoadMap({ searchQuery }) {
+export default function LiveRoadMap({ searchQuery, searchResults, searched }) {
   const mapRef = useRef(null);
   const sectionRef = useRef(null);
   const [satellite, setSatellite] = useState(false);
@@ -85,7 +85,10 @@ export default function LiveRoadMap({ searchQuery }) {
     }), []
   );
 
-  const points = useMemo(() => filterPoints(searchQuery, reports), [searchQuery, reports]); // ← changed
+  const points = useMemo(() => {
+  if (searched && searchResults?.length >= 0) return searchResults;
+  return filterPoints(searchQuery, reports);
+  }, [searchQuery, reports, searched, searchResults]);
 
   const zoomIn = () => mapRef.current?.zoomIn();
   const zoomOut = () => mapRef.current?.zoomOut();

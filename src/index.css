@@ -351,6 +351,27 @@ a:hover {
   background: linear-gradient(90deg, var(--teal), var(--sky));
 }
 
+/* Stat card layout: label left, value+trend right */
+.stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.stat-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+}
+.stat-value {
+  font-size: 1.6rem;
+}
+.stat-trend {
+  font-size: 0.78rem;
+  margin: 0;
+}
+
 /* Dashboard layout */
 .dashboard-layout {
   display: grid;
