@@ -1,6 +1,5 @@
 FROM python:3.11-slim
 
-# System deps for OpenCV (used by ultralytics)
 RUN apt-get update && apt-get install -y \
     libgl1 libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
@@ -13,9 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Model weights are mounted as a Railway volume at /app/model/
-# or injected via MODEL_PATH env var pointing to a downloaded file
+# Download model from Google Drive on startup
+RUN mkdir -p /app/model
 
-EXPOSE 8000
-
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "gdown --id https://drive.google.com/file/d/1axZZyPOFDmIs9Eq0HtYRMpR3Q3vRJMt7/view?usp=drive_link -O /app/model/yolov8_rdd2022_v3_best.pt && uvicorn main:app --host 0.0.0.0 --port 8000"]
