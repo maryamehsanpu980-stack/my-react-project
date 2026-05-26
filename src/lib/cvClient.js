@@ -1,9 +1,13 @@
 // src/lib/cvClient.js
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
+
 const CV_SERVICE_URL = process.env.CV_SERVICE_URL;
 const CV_SERVICE_SECRET = process.env.CV_SERVICE_SECRET;
 
-console.log('[cvClient] URL:', CV_SERVICE_URL);
-console.log('[cvClient] SECRET SET:', !!CV_SERVICE_SECRET);
+if (!CV_SERVICE_URL) {
+  throw new Error('CV_SERVICE_URL missing');
+}
 
 export async function checkCVHealth() {
   const res = await fetch(`${CV_SERVICE_URL}/health`, {
@@ -16,7 +20,6 @@ export async function detectPothole(imageBuffer, filename) {
   
   const form = new FormData();
   form.append('file', new Blob([imageBuffer], { type: 'image/jpeg' }), filename);
-  console.log("secret:", CV_SERVICE_SECRET);
   for (const [key, value] of form.entries()) {
   console.log({
     key,
