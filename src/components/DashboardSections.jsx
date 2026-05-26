@@ -1,3 +1,4 @@
+"use client";
 import {
   RECENT_REPORTS,
   TOP_AREAS,
@@ -5,6 +6,14 @@ import {
   AI_INSIGHTS,
   SAFETY_TIPS,
 } from "../data/siteData.js";
+import React, { useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link"; 
+import Contributor from "./Contributor"; //
+
+
+
+ 
 
 function rankClass(rank) {
   if (rank === "Top Contributor") return "contrib-badge rank-top";
@@ -20,46 +29,45 @@ function initials(name) {
     .slice(0, 2);
 }
 
+// 1. ADD THIS ARY DECLARATION RIGHT HERE (Outside the function)
+const mockContributors = Array.from({ length: 23 }, (_, i) => ({
+  id: i + 1,
+  name: `Contributor ${i + 1}`,
+  email:`${i + 1}@email.com`
+  
+}));
+
+const ITEMS_PER_PAGE = 5;
+
+ 
 export default function DashboardSections() {
+ // 1. Local state to track pagination context
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // 2. Pagination Math calculations
+  const totalPages = Math.ceil(mockContributors.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  
+  // Slice out the exact 5 items for our current page view
+  const currentData = mockContributors.slice(startIndex, endIndex);
+
+  // 3. Action Handlers for the buttons
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => prev - 1);
+    }
+  };
+ 
+
   return (
     <div className="lower-grid">
-      <section className="card-elevated" id="reports" aria-labelledby="recentHeading">
-        <div className="card-head">
-          <h2 id="recentHeading" className="section-title">
-            Recent Reports
-          </h2>
-          <a href="#reports" className="text-link">
-            View all
-          </a>
-        </div>
-        <ul className="report-list">
-          {RECENT_REPORTS.map((r) => (
-            <li key={`${r.area}-${r.time}`} className="report-item">
-              <img className="report-thumb" src={r.img} alt="" loading="lazy" width="64" height="64" />
-              <div className="report-body">
-                <h3>{r.area}</h3>
-                <p className="report-meta">{r.time}</p>
-                <p className="report-desc">{r.detail}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section className="card-elevated" aria-labelledby="areasHeading">
-        <h2 id="areasHeading" className="section-title">
-          Top Affected Areas
-        </h2>
-        <ol className="ranked-list">
-          {TOP_AREAS.map((a) => (
-            <li key={a.name}>
-              <span>{a.name}</span>
-              <span className="count">{a.count} reports</span>
-            </li>
-          ))}
-        </ol>
-      </section>
-
       <section className="card-elevated" id="contributors" aria-labelledby="contribHeading">
         <h2 id="contribHeading" className="section-title">
           Contributors
@@ -80,41 +88,60 @@ export default function DashboardSections() {
             </li>
           ))}
         </ul>
+        
       </section>
+      <div style={{ padding: "20px", maxWidth: "500px", border: "1px solid #ddd", borderRadius: "8px" }}>
+      <h2>Dashboard Sections</h2>
+      <p>Manage your platform sections and system variables here.</p>
 
-      <section className="card-elevated insights-card" aria-labelledby="aiHeading">
-        <h2 id="aiHeading" className="section-title">
-          AI Detection Insights
-        </h2>
-        <ul className="insight-metrics">
-          {AI_INSIGHTS.map((i) => (
-            <li key={i.label} className="insight-row">
-              <span>{i.label}</span>
-              <strong>{i.value}</strong>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <hr style={{ margin: "20px 0", borderColor: "#eee" }} />
 
-      <section className="card-elevated tips-card" aria-labelledby="tipsHeading">
-        <h2 id="tipsHeading" className="section-title">
-          Road Safety Tips
-        </h2>
-        <ul className="tips-list">
-          {SAFETY_TIPS.map((t, i) => (
-            <li key={i}>{t}</li>
-          ))}
-        </ul>
-      </section>
+      {/* Renders the child component, sending only the current slice of items */}
+      <Contributor currentData={currentData} />
 
+      {/* Pagination Controls Row */}
+      <div style={{ marginTop: "20px", display: "flex", gap: "10px", alignItems: "center" }}>
+        <button
+          onClick={handlePrev}
+          disabled={currentPage === 1}
+          style={{
+            padding: "6px 12px",
+            cursor: currentPage === 1 ? "not-allowed" : "pointer",
+            background: currentPage === 1 ? "#ccc" : "var(--teal, #008080)",
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px"
+          }}
+        >
+          Previous
+        </button>
+
+        <span style={{ fontWeight: "600" }}>
+          Page {currentPage} of {totalPages}
+        </span>
+
+        <button
+          onClick={handleNext}
+          disabled={currentPage === totalPages}
+          style={{
+            padding: "6px 12px",
+            cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+            background: currentPage === totalPages ? "#ccc" : "var(--teal, #008080)",
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px"
+          }}
+        >
+          Next
+        </button>
+      </div>
+    </div>
       <section className="card-elevated message-card" id="about" aria-labelledby="msgHeading">
         <h2 id="msgHeading" className="section-title">
           Our Message
         </h2>
         <p className="message-body">
-          RoadVision.pk helps Lahore citizens report potholes easily and supports{" "}
-          <strong>AI-powered road damage detection</strong> so authorities and communities can prioritize repairs.
-          Together we make city roads safer, more predictable, and more reliable for everyone who lives and travels here.
+         RoadVision.pk is a community-driven platform dedicated to improving road safety and infrastructure across Lahore. Our mission is to make it easier for citizens to report potholes, damaged roads, broken streets, and other road-related issues directly from their area. By connecting communities with local authorities, we help highlight road problems that affect daily travel, public safety, and transportation reliability.
         </p>
       </section>
     </div>

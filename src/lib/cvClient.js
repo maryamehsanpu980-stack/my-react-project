@@ -1,7 +1,9 @@
 // src/lib/cvClient.js
-
 const CV_SERVICE_URL = process.env.CV_SERVICE_URL;
 const CV_SERVICE_SECRET = process.env.CV_SERVICE_SECRET;
+
+console.log('[cvClient] URL:', CV_SERVICE_URL);
+console.log('[cvClient] SECRET SET:', !!CV_SERVICE_SECRET);
 
 export async function checkCVHealth() {
   const res = await fetch(`${CV_SERVICE_URL}/health`, {
@@ -11,10 +13,20 @@ export async function checkCVHealth() {
 }
 
 export async function detectPothole(imageBuffer, filename) {
-  const { FormData, Blob } = await import('node-fetch');
+  
   const form = new FormData();
   form.append('file', new Blob([imageBuffer], { type: 'image/jpeg' }), filename);
-
+  console.log("secret:", CV_SERVICE_SECRET);
+  for (const [key, value] of form.entries()) {
+  console.log({
+    key,
+    value,
+    type: value?.type,
+    size: value?.size,
+    name: value?.name,
+    file: value?.file
+  });
+}
   const res = await fetch(`${CV_SERVICE_URL}/detect`, {
     method: 'POST',
     headers: {
@@ -23,7 +35,27 @@ export async function detectPothole(imageBuffer, filename) {
     body: form,
   });
 
-  if (!res.ok) throw new Error(`CV service error: ${res.status}`);
+  if (!res.ok) {
+  let errorBody;
+
+  try {
+    errorBody = await res.text();
+  } catch (e) {
+    errorBody = "Failed to read error body";
+  }
+
+  console.error("CV service error:", {
+    status: res.status,
+    statusText: res.statusText,
+    body: errorBody,
+  });
+
+  throw new Error(
+    `CV service error: ${res.status} ${res.statusText} - ${errorBody}`
+  );
+}
+
+  console.log('CV service response status:', res.status);
   return res.json();
 }
 

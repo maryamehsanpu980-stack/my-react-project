@@ -3,7 +3,6 @@ dist
 .DS_Store
 *.log
 .env
-.env.*
 .env.local
 .next/
 # Python virtual environment
@@ -20,3 +19,7 @@ cv-service/.pytest_cache/
 node_modules/
 .next/
 dist/
+.env
+.env.test
+test-results/
+playwright-report/

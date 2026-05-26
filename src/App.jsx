@@ -7,6 +7,9 @@ import DashboardSections from "./components/DashboardSections.jsx";
 import Footer from "./components/Footer.jsx";
 import ReportModal from "./components/ReportModal.jsx";
 
+
+
+
 export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [reportModalOpen, setReportModalOpen] = useState(false);
@@ -27,9 +30,12 @@ export default function App() {
             <DashboardSections />
           </div>
         </div>
+        
       </main>
+      
       <Footer />
       <ReportModal open={reportModalOpen} onClose={() => setReportModalOpen(false)} />
+        
     </>
   );
 }

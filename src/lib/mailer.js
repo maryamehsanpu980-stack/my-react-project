@@ -31,13 +31,49 @@ export async function sendVerificationEmail({ to, name, reportId }) {
 /**
  * Sent when an uploaded image matches an existing detection within 20 metres.
  */
-export async function sendDuplicateEmail({ to, name, existingArea, existingDate }) {
-  await transporter.sendMail({
-    from: `"RoadVision.pk" <${process.env.GMAIL_USER}>`,
-    to,
-    subject: 'Duplicate pothole report detected — RoadVision.pk',
-    html: duplicateEmailHTML({ name, existingArea, existingDate }),
-  });
+export async function sendDuplicateEmail({
+  to,
+  name,
+  existingArea,
+  existingDate,
+}) {
+  try {
+    console.log("Sending duplicate pothole email...", {
+      to,
+      name,
+      existingArea,
+      existingDate,
+    });
+
+    const info = await transporter.sendMail({
+      from: `"RoadVision.pk" <${process.env.GMAIL_USER}>`,
+      to,
+      subject: "Duplicate pothole report detected — RoadVision.pk",
+      html: duplicateEmailHTML({
+        name,
+        existingArea,
+        existingDate,
+      }),
+    });
+
+    console.log("Duplicate email sent successfully", {
+      messageId: info.messageId,
+      response: info.response,
+      accepted: info.accepted,
+      rejected: info.rejected,
+    });
+
+    return info;
+  } catch (error) {
+    console.error("Failed to send duplicate email", {
+      error: error.message,
+      stack: error.stack,
+      to,
+      name,
+    });
+
+    throw error;
+  }
 }
 
 /**
@@ -50,6 +86,7 @@ export async function sendAcceptanceEmail({ to, name, reportId, area, severity }
     subject: '✅ Your report is live on the map — RoadVision.pk',
     html: acceptanceEmailHTML({ name, reportId, area, severity }),
   });
+  console.log(`Acceptance email sent to ${to} for report ${reportId}`);
 }
 
 /**
