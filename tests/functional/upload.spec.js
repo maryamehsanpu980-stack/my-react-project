@@ -1,11 +1,19 @@
 import { test, expect } from "@playwright/test";
 
-test("frontend should show main page content", async ({ page }) => {
-  await page.goto("/");
+test("upload page should open without 404", async ({ page }) => {
+  await page.goto("/upload");
+
+  await page.waitForLoadState("domcontentloaded");
 
   await expect(page.locator("body")).toBeVisible();
 
-  const pageText = await page.locator("body").innerText();
+  await expect(page.getByText(/404|page not found/i)).not.toBeVisible();
+});
 
-  expect(pageText.length).toBeGreaterThan(0);
+test("upload page should not show frontend crash message", async ({ page }) => {
+  await page.goto("/upload");
+
+  await expect(
+    page.getByText(/application error|runtime error|failed to compile|something went wrong/i)
+  ).not.toBeVisible();
 });
