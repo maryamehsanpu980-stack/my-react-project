@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "test:functional": "playwright test tests/functional",
-    "test:api": "playwright test tests/api",
+   "test:api": "playwright test -c playwright.api.config.js",
     "test:db:supabase": "node --test tests/db/supabase-database.test.cjs",
     "test:cv": "node --test tests/cv"
   },
