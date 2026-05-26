@@ -36,7 +36,7 @@ import { createClient }  from '@supabase/supabase-js';
 import { detectPothole }                              from '../../src/lib/cvClient.js';
 import { isWithinLahoreBounds, reverseGeocodeCheck }  from '../../src/lib/geocode.js';
 import { findDuplicateDetection }                     from '../../src/lib/duplicateCheck.js';
-import { checkAIGenerated }                           from '../../src/lib/aiImageCheck.js';
+import { checkAIGenerated } from '../src/lib/aiImageCheck.js';
 import {
   sendVerificationEmail,
   sendDuplicateEmail,
