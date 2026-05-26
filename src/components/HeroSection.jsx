@@ -1,7 +1,46 @@
+import { useState, useEffect } from "react";
 import StatIcon from "./StatIcon.jsx";
-import { STATS } from "../data/siteData.js";
 
 export default function HeroSection() {
+  const [stats, setStats] = useState({ total: 0, approved: 0, contributors: 0 });
+
+  useEffect(() => {
+    fetch('/api/stats')
+      .then(r => r.json())
+      .then(setStats)
+      .catch(console.error);
+  }, []);
+
+  const STATS = [
+    {
+      key: "reports",
+      label: "Total Reports",
+      value: stats.total.toLocaleString(),
+      trend: "All time",
+      trendUp: true,
+      bar: 78,
+      icon: "doc",
+    },
+    {
+      key: "detected",
+      label: "Approved & Live",
+      value: stats.approved.toLocaleString(),
+      trend: "On the map",
+      trendUp: true,
+      bar: 65,
+      icon: "check",
+    },
+    {
+      key: "contributors",
+      label: "Contributors",
+      value: stats.contributors.toLocaleString(),
+      trend: "Unique reporters",
+      trendUp: true,
+      bar: 50,
+      icon: "camera",
+    },
+  ];
+
   return (
     <section className="hero">
       <div className="hero-copy">
@@ -17,14 +56,13 @@ export default function HeroSection() {
                 <StatIcon name={s.icon} />
               </span>
             </div>
-            <p className="stat-label">{s.label}</p>
-            <p className="stat-value">{s.value}</p>
-            <p className={`stat-trend ${s.trendUp ? "up" : "down"}`}>
-              {s.trend}
-              <span className="bar" aria-hidden="true">
-                <span style={{ width: `${s.bar}%` }} />
-              </span>
-            </p>
+            <div className="stat-row">
+              <p className="stat-label">{s.label}</p>
+              <div className="stat-right">
+                <p className="stat-value">{s.value}</p>
+                <p className={`stat-trend ${s.trendUp ? "up" : "down"}`}>{s.trend}</p>
+              </div>
+            </div>
           </article>
         ))}
       </div>
