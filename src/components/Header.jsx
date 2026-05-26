@@ -3,7 +3,6 @@ import { useState } from "react";
 const links = [
   { href: "#dashboard", label: "Dashboard" },
   { href: "#map-section", label: "Live Map" },
-  { href: "#reports", label: "Reports" },
   { href: "#contributors", label: "Contributors" },
   { href: "#about", label: "About" },
 ];
@@ -38,25 +37,6 @@ export default function Header() {
             </a>
           ))}
         </nav>
-        <div className="header-actions">
-          <button type="button" className="icon-btn profile-btn" aria-label="User profile">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            className="menu-toggle"
-            aria-label={mobileOpen ? "Close menu" : "Open menu"}
-            aria-expanded={mobileOpen}
-            onClick={() => setMobileOpen((o) => !o)}
-          >
-            <span />
-            <span />
-            <span />
-          </button>
-        </div>
       </div>
       <nav className={`nav-mobile${mobileOpen ? " is-open" : ""}`} aria-label="Mobile primary">
         {links.map((l) => (
