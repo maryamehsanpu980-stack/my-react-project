@@ -31,13 +31,13 @@ export default function Footer() {
           <h3 className="footer-heading">Support</h3>
           <ul className="footer-links">
             <li>
-              <a href="mailto:hello@roadvision.pk">helloo@roadvision.pk</a>
+              <a href="mailto: roadvision.pk@gmail.com">helloo@roadvision.pk</a>
             </li>
           </ul>
         </div>
       </div>
       <div className="footer-bottom">
-        <p>© {year} RoadVision.pk · Built for safer Lahore roads.</p>
+        <p>© {2026} RoadVision.pk · Built for safer Lahore roads.</p>
       </div>
     </footer>
   );
