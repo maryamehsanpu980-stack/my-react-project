@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "test:db:supabase": "node --test tests/db/supabase-database.test.cjs",
-    "test:functional": "playwright test tests/functional"
+    "test:functional": "playwright test tests/functional",
+    "test:api": "playwright test --config=playwright.api.config.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.106.1",
