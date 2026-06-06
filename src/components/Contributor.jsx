@@ -4,13 +4,7 @@
 import React from "react";
 
 
-const CONTRIBUTORS = [
-  { name: "Ali Khan" },
-  { name: "Sara Ahmed" },
-  { name: "Usman Tariq" },
-  { name: "Fatima Noor" },
-  { name: "Hamza Malik" },
-];
+
 
 function initials(name) {
   return name
