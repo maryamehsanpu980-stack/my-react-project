@@ -34,36 +34,7 @@ export const MAP_POINTS = [
   { area: "Johar Town Block R", lat: 31.471, lng: 74.265 },
 ];
 
-export const STATS = [
-  {
-    key: "reports",
-    label: "Total Reports",
-    value: "2,847",
-    trend: "+12.4%",
-    trendUp: true,
-    bar: 78,
-    icon: "doc",
-  },
-  {
-    key: "detected",
-    label: "Potholes Detected",
-    value: "1,926",
-    trend: "+8.1%",
-    trendUp: true,
-    bar: 65,
-    icon: "camera",
-  },
 
-  {
-    key: "pending",
-    label: "Pending Reports",
-    value: "412",
-    trend: "−6.2%",
-    trendUp: true,
-    bar: 30,
-    icon: "clock",
-  },
-];
 export const TOP_AREAS = [
   { name: "Gulberg", count: 312 },
   { name: "Johar Town", count: 276 },
