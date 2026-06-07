@@ -1,19 +1,11 @@
 "use client";
 import {
-  RECENT_REPORTS,
-  TOP_AREAS,
   CONTRIBUTORS,
-  AI_INSIGHTS,
-  SAFETY_TIPS,
 } from "../data/siteData.js";
 import React, { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link"; 
 import Contributor from "./Contributor"; //
-
-
-
- 
 
 function rankClass(rank) {
   if (rank === "Top Contributor") return "contrib-badge rank-top";
