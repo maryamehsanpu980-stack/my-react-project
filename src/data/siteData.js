@@ -64,40 +64,6 @@ export const STATS = [
     icon: "clock",
   },
 ];
-
-export const RECENT_REPORTS = [
-  {
-    area: "Gulberg",
-    time: "Today, 9:14 AM",
-    detail: "Deep depression near signal — water pooling after rain.",
-    img: "https://picsum.photos/seed/pothole1/128/128.jpg",
-  },
-  {
-    area: "Ferozepur Road",
-    time: "Yesterday, 6:40 PM",
-    detail: "Longitudinal crack widening; heavy bus traffic.",
-    img: "https://picsum.photos/seed/pothole2/128/128.jpg",
-  },
-  {
-    area: "Johar Town",
-    time: "Yesterday, 2:05 PM",
-    detail: "Multiple small holes in slow lane outside market.",
-    img: "https://picsum.photos/seed/pothole3/128/128.jpg",
-  },
-  {
-    area: "Canal Road",
-    time: "Mon, 11:22 AM",
-    detail: "Edge failure along shoulder; cyclists at risk.",
-    img: "https://picsum.photos/seed/pothole4/128/128.jpg",
-  },
-  {
-    area: "DHA",
-    time: "Sun, 4:50 PM",
-    detail: "Patched section sinking again after recent heat.",
-    img: "https://picsum.photos/seed/pothole5/128/128.jpg",
-  },
-];
-
 export const TOP_AREAS = [
   { name: "Gulberg", count: 312 },
   { name: "Johar Town", count: 276 },
@@ -106,6 +72,8 @@ export const TOP_AREAS = [
   { name: "Canal Road", count: 185 },
   { name: "Township", count: 156 },
 ];
+
+
 
 export const CONTRIBUTORS = [
   { name: "Ayesha Khan", area: "Model Town", reports: 48, },
@@ -120,16 +88,6 @@ export const CONTRIBUTORS = [
   { name: "Talha Younas", area: "Iqbal Town", reports: 6, },
 ];
 
-export const AI_INSIGHTS = [
-  { label: "Detection accuracy", value: "94.2%" },
-  { label: "High risk roads", value: "18 segments" },
-  { label: "Repeated damage areas", value: "7 hotspots" },
-  { label: "Predicted deterioration (30d)", value: "+11% load risk" },
-];
 
-export const SAFETY_TIPS = [
-  "Slow down when approaching visibly damaged roads — sudden swerves cause collisions.",
-  "Avoid harsh braking on uneven surfaces; keep a safe following distance.",
-  "Report dangerous potholes through RoadVision.pk so crews can prioritize fixes.",
-  "Use headlights in low light to spot surface changes earlier.",
-];
+
+
