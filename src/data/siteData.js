@@ -34,18 +34,6 @@ export const MAP_POINTS = [
   { area: "Johar Town Block R", lat: 31.471, lng: 74.265 },
 ];
 
-
-export const TOP_AREAS = [
-  { name: "Gulberg", count: 312 },
-  { name: "Johar Town", count: 276 },
-  { name: "DHA", count: 241 },
-  { name: "Ferozepur Road", count: 198 },
-  { name: "Canal Road", count: 185 },
-  { name: "Township", count: 156 },
-];
-
-
-
 export const CONTRIBUTORS = [
   { name: "Ayesha Khan", area: "Model Town", reports: 48, },
   { name: "Hassan Malik", area: "Iqbal Town", reports: 31, },
