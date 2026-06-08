@@ -2,14 +2,14 @@ from ultralytics import YOLO
 import os
 
 MODEL_PATH = os.getenv("MODEL_PATH", "yolov8n.pt")  # ← fixed default
-CONF_THRESHOLD = float(os.getenv("CONF_THRESHOLD", "0.50"))
+CONF_THRESHOLD = float(os.getenv("CONF_THRESHOLD", "0.10"))
 IOU_THRESHOLD  = float(os.getenv("IOU_THRESHOLD",  "0.50"))
 
 model = YOLO(MODEL_PATH)
 
 def severity_from_confidence(conf: float) -> str:
-    if conf < 0.50:  return "none"
-    if conf < 0.65:  return "low"
+    if conf < 0.10:  return "none"   # was 0.50
+    if conf < 0.50:  return "low"    # was 0.65
     if conf < 0.80:  return "medium"
     return "high"
 
