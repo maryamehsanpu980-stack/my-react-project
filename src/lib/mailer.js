@@ -15,6 +15,11 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+transporter
+  .verify()
+  .then(() => console.log('Mailer transporter verified (SMTP connection OK)'))
+  .catch((err) => console.error('Mailer transporter verification failed', err && err.message ? err.message : err));
+
 /**
  * Sends an email confirming the submission was received and is under review.
  * Called immediately on upload, before verification completes.
